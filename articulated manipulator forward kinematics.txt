@@ -1,0 +1,42 @@
+#Implementing our version of The Articulated Manipulator's forward kinematics
+#This program requires the user to input 3 angle values corresponding to 3 DoF
+#And returns the Homogenous Transform Matrix (HTM) containing the final
+#Rotation matrix and displacement vector
+import numpy as np
+
+def fwd_km(T1,T2,T3):
+  #Establishing lengths of links in arbitrary units, can be modified to be
+  #entered by user in the future
+  L1 = 1
+  L2 = 1
+  L3 = 1
+
+  #Establishing Displacement vectors
+  D0_1 = [[0],[0],[L1]]
+  D1_2 = [[L2*np.cos(T2)],[L2*np.sin(T2)],[0]]
+  D2_3 = [[L3*np.cos(T3)],[L3*np.sin(T3)],[0]]
+
+  #Establishing Rotation matrices
+  R0_1= [[np.cos(T1),0,np.sin(T1)],[np.sin(T1),0,-1*np.cos(T1)],[0,1,0]]
+  R1_2= [[np.cos(T2),-1*np.sin(T2),0],[np.sin(T2),np.cos(T2),0],[0,0,1]]
+  R2_3= [[np.cos(T3),-1*np.sin(T3),0],[np.sin(T3),np.cos(T3),0],[0,0,1]]
+
+  #Establishing HTMs
+  H0_1 = np.concatenate((R0_1,D0_1),1) #Specifing axis = 1
+  H0_1 = np.concatenate((H0_1,[[0,0,0,1]]),0) #Axis defaults to 0
+
+  H1_2 = np.concatenate((R1_2,D1_2),1) 
+  H1_2 = np.concatenate((H1_2,[[0,0,0,1]])) 
+
+  H2_3 = np.concatenate((R2_3,D2_3),1) 
+  H2_3 = np.concatenate((H2_3,[[0,0,0,1]]))
+
+  H0_3 = np.linalg.multi_dot([H0_1, H1_2, H2_3])
+
+  print(np.matrix(H0_3))
+
+#Takes joint variables from user in degrees and converts them to radians
+T1 = (int(input("Please enter the value of Theta 1:"))/180)*np.pi
+T2 = (int(input("Please enter the value of Theta 2:"))/180)*np.pi
+T3 = (int(input("Please enter the value of Theta 3:"))/180)*np.pi
+fwd_km(T1,T2,T3)
